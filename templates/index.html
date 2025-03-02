@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation</title>
+    <link rel="stylesheet" href="/static/styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Utkarsh's Travel Booking APIs 😁</h1>
+            <p>You can interact with the API and perform actions like booking items, canceling bookings, and uploading CSV files.</p>
+        </header>
+
+        <section>
+            <h2>1. Book an Item</h2>
+            <p>This API allows you to book an item in the inventory. You need to provide a member ID and an inventory ID.</p>
+            <form id="book-form">
+                <label for="member_id">Member ID:</label>
+                <input type="number" id="member_id" placeholder="Enter Member ID" required>
+                <label for="inventory_id">Inventory ID:</label>
+                <input type="number" id="inventory_id" placeholder="Enter Inventory ID" required>
+                <button type="submit">Book Item</button>
+            </form>
+        </section>
+
+        <section>
+            <h2>2. Cancel a Booking</h2>
+            <p>This API allows you to cancel a booking using the booking ID.</p>
+            <form id="cancel-form">
+                <label for="booking_id">Booking ID:</label>
+                <input type="number" id="booking_id" placeholder="Enter Booking ID" required>
+                <button type="submit">Cancel Booking</button>
+            </form>
+        </section>
+
+        <section>
+            <h2>3. Upload Members</h2>
+            <p>Use this API to upload a CSV file containing member data. The file must be in `.csv` format.</p>
+            <form id="upload-members-form" enctype="multipart/form-data">
+                <label for="members-file">Select Members CSV:</label>
+                <input type="file" id="members-file" name="file" accept=".csv" required>
+                <button type="submit">Upload Members CSV</button>
+            </form>
+        </section>
+
+        <section>
+            <h2>4. Upload Inventory</h2>
+            <p>Use this API to upload a CSV file containing inventory data. The file must be in `.csv` format.</p>
+            <form id="upload-inventory-form" enctype="multipart/form-data">
+                <label for="inventory-file">Select Inventory CSV:</label>
+                <input type="file" id="inventory-file" name="file" accept=".csv" required>
+                <button type="submit">Upload Inventory CSV</button>
+            </form>
+        </section>
+    </div>
+
+    <script>
+        // Book Item
+        document.getElementById('book-form').addEventListener('submit', function(event) {
+            event.preventDefault();
+
+            const requestConfig = {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    member_id: document.getElementById('member_id').value,
+                    inventory_id: document.getElementById('inventory_id').value
+                })
+            };
+
+            fetch('/book', requestConfig)
+                .then(response => {
+                    if (!response.ok) {
+                        return response.json().then(errorData => {
+                            // Check for the specific error message types
+                            let errorMessage = "An unknown error occurred.";
+                            if (errorData.SQLAlchemy_Error) {
+                                errorMessage = errorData.SQLAlchemy_Error;
+                            } else if (errorData.unexpected_error) {
+                                errorMessage = errorData.unexpected_error;
+                            } else if (errorData.error) {
+                                errorMessage = errorData.error;
+                            }
+                            throw new Error(errorMessage);
+                        });
+                    }
+                    return response.json(); // Parse the JSON if successful
+                })
+                .then(data => {
+                    alert(data.message || "Success!");
+                })
+                .catch(err => {
+                    alert("Error: " + err.message);
+                });
+        });
+
+        // Cancel Booking
+        document.getElementById('cancel-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const booking_id = document.getElementById('booking_id').value;
+
+            fetch(`/cancel/${booking_id}`, {
+                method: 'DELETE',
+            })
+            .then(response => response.json())
+            .then(data => alert(data.message || data.error))
+            .catch(err => {
+                    alert("Error: " + err.message);
+            });
+        });
+
+        // Upload Members CSV
+        document.getElementById('upload-members-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const file = document.getElementById('members-file').files[0];
+            const formData = new FormData();
+            formData.append("file", file);
+
+            fetch('/upload/members', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    // If the response is not OK, try to read the error from the response
+                    return response.json().then(errorData => {
+                            // Check for the specific error message types
+                            let errorMessage = "An unknown error occurred.";
+                            if (errorData.SQLAlchemy_Error) {
+                                errorMessage = errorData.SQLAlchemy_Error;
+                            } else if (errorData.error) {
+                                errorMessage = errorData.error;
+                            }
+                            throw new Error(errorMessage);
+                    });
+                }
+                return response.json()
+            })
+            .then(data => alert(data.message || data.error))
+            .catch(err => alert("Error: " + err));
+        });
+
+        // Upload Inventory CSV
+        document.getElementById('upload-inventory-form').addEventListener('submit', function (event) {
+            event.preventDefault();
+            const file = document.getElementById('inventory-file').files[0];
+            const formData = new FormData();
+            formData.append("file", file);
+
+            fetch('/upload/inventory', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => {
+                if (!response.ok) {
+                    // If the response is not OK, try to read the error from the response
+                    return response.json().then(errorData => {
+                            // Check for the specific error message types
+                            let errorMessage = "An unknown error occurred.";
+                            if (errorData.SQLAlchemy_Error) {
+                                errorMessage = errorData.SQLAlchemy_Error;
+                            } else if (errorData.error) {
+                                errorMessage = errorData.error;
+                            }
+                            throw new Error(errorMessage);
+                    });
+                }
+                return response.json()
+            })
+            .then(data => alert(data.message || data.error))
+            .catch(err => alert("Error: " + err));
+        });
+    </script>
+</body>
+</html>
