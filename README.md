@@ -27,8 +27,8 @@ python --version
 
 # 1. Clone the Repository
 ```
-git clone https://github.com/your-username/your-flask-app.git
-cd your-flask-app
+git clone https://github.com/utkarshSUV/TravelBooking.git
+cd TravelBooking
 ```
 
 # 2. Set Up a Virtual Environment (Recommended)
@@ -61,4 +61,5 @@ If all the requirements were installed properly then you can simply run the flas
 flask run
 ```
 
-# NOTE: Since it's a free 3rd party DB instance The APIs may takes a bit long  giving 
+# NOTE:- The postgres instance is under a free tier subscription and it takes few seconds to hot reload after inactivity. You may experience delay in the first API response, subsequent API calls should work fine.
+ 
